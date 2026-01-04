@@ -1,0 +1,122 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import '../../../logic/providers/product_provider.dart';
+import '../../widgets/category_tile.dart';
+import 'category_products_screen.dart';
+
+class CategoriesScreen extends ConsumerWidget {
+  const CategoriesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: Text('Categories', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Shop by Category', 
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.textTheme.titleLarge?.color,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                StaggeredGrid.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  children: [
+                    StaggeredGridTile.count(
+                      crossAxisCellCount: 1,
+                      mainAxisCellCount: 1,
+                      child: CategoryTile(
+                        title: 'All Products', 
+                        icon: Icons.grid_view_rounded, 
+                        color: Colors.black87,
+                        bgColor: const Color(0xFFF5F5F5),
+                        isLarge: true,
+                        onTap: () {
+                           Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CategoryProductsScreen(categoryName: 'All')),
+                          );
+                        },
+                      ),
+                    ),
+                    StaggeredGridTile.count(
+                      crossAxisCellCount: 1,
+                      mainAxisCellCount: 1.2,
+                      child: CategoryTile(
+                        title: 'Electronics', 
+                        icon: Icons.devices_other, 
+                        color: theme.colorScheme.secondary,
+                        bgColor: theme.colorScheme.secondary.withOpacity(0.1),
+                        isLarge: true,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CategoryProductsScreen(categoryName: 'Electronics')),
+                          );
+                        },
+                      ),
+                    ),
+                    StaggeredGridTile.count(
+                      crossAxisCellCount: 1,
+                      mainAxisCellCount: 1.2,
+                      child: CategoryTile(
+                        title: 'Fashion', 
+                        icon: Icons.checkroom, 
+                        color: Colors.pinkAccent,
+                        bgColor: Colors.pinkAccent.withOpacity(0.1),
+                        isLarge: true,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CategoryProductsScreen(categoryName: 'Fashion')),
+                          );
+                        },
+                      ),
+                    ),
+                    StaggeredGridTile.count(
+                      crossAxisCellCount: 1,
+                      mainAxisCellCount: 1,
+                      child: CategoryTile(
+                        title: 'Home', 
+                        icon: Icons.weekend_outlined, 
+                        color: Colors.deepOrange,
+                        bgColor: Colors.deepOrange.withOpacity(0.1),
+                        isLarge: true,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CategoryProductsScreen(categoryName: 'Home')),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
