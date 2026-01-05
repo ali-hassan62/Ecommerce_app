@@ -10,5 +10,6 @@ class HiveService {
     }
     await Hive.openBox<ProductModel>(AppConstants.cartBox);
     await Hive.openBox<int>(AppConstants.cartQuantitiesBox);
+    await Hive.openBox(AppConstants.settingsBox);
   }
 }

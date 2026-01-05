@@ -25,6 +25,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.4.1"
+  animated_login:
+    dependency: "direct main"
+    description:
+      name: animated_login
+      sha256: c4e66e17c49e1b2f983891c2bbc8eb1f263e7c5c74637b120e51d5415e73ce6c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.7.2"
+  animations:
+    dependency: transitive
+    description:
+      name: animations
+      sha256: "18938cefd7dcc04e1ecac0db78973761a01e4bc2d6bfae0cfa596bfeac9e96ab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   app_links:
     dependency: transitive
     description:
@@ -488,6 +504,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  nested:
+    dependency: transitive
+    description:
+      name: nested
+      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   package_config:
     dependency: transitive
     description:
@@ -592,6 +616,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.0"
+  provider:
+    dependency: transitive
+    description:
+      name: provider
+      sha256: "4e82183fa20e5ca25703ead7e05de9e4cceed1fbd1eadc1ac3cb6f565a09f272"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.5+1"
   pub_semver:
     dependency: transitive
     description:

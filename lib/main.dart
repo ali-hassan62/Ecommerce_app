@@ -10,6 +10,7 @@ import 'data/sources/hive_service.dart';
 import 'presentation/screens/home/home_screen.dart';
 import 'presentation/screens/auth/login_screen.dart'; // Make sure this path is correct
 import 'presentation/screens/auth/auth_gate.dart';
+import 'presentation/providers/theme_provider.dart';
 
 void main() async {
   // 1. Essential for async initialization
@@ -32,15 +33,19 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
     return MaterialApp(
       title: 'SwiftShop',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       home: const AuthGate(),
     );
   }

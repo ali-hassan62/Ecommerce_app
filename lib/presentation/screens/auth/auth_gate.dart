@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main_screen.dart';
-import 'login_screen.dart';
+import 'animated_login_screen.dart';
 
 class AuthGate extends ConsumerStatefulWidget {
   const AuthGate({super.key});
@@ -36,7 +36,7 @@ class _AuthGateState extends ConsumerState<AuthGate> {
         if (session != null) {
           return const MainScreen();
         } else {
-          return const AuthScreen();
+          return const AnimatedLoginScreen();
         }
       },
     );

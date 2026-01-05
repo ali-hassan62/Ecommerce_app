@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../providers/theme_provider.dart';
 import 'personal_details_screen.dart';
 import 'addresses_screen.dart';
 import 'payment_methods_screen.dart';
@@ -8,11 +10,11 @@ import 'order_history_screen.dart';
 import '../admin/admin_layout.dart';
 import '../admin/admin_access_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
@@ -76,6 +78,17 @@ class ProfileScreen extends StatelessWidget {
                       _MenuItem(theme, icon: Icons.person_outline_rounded, label: 'Personal Details', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalDetailsScreen()))),
                       _MenuItem(theme, icon: Icons.location_on_outlined, label: 'Addresses', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddressesScreen()))),
                       _MenuItem(theme, icon: Icons.payment_outlined, label: 'Payment Methods', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentMethodsScreen()))),
+                      
+                      // Dark Mode Switch
+                      _SwitchMenuItem(
+                        theme,
+                        icon: Icons.dark_mode_outlined,
+                        label: 'Dark Mode',
+                        value: ref.watch(themeProvider) == ThemeMode.dark,
+                        onChanged: (val) {
+                          ref.read(themeProvider.notifier).toggleTheme(val);
+                        },
+                      ),
                       
                       // Admin Section
                       if (user?.userMetadata?['is_admin'] == true)
@@ -189,10 +202,18 @@ class _MenuItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isHighlight ? theme.primaryColor.withOpacity(0.1) : Colors.grey[100],
+                color: isHighlight 
+                    ? theme.primaryColor.withOpacity(0.1) 
+                    : theme.colorScheme.secondaryContainer,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: isHighlight ? theme.primaryColor : Colors.grey[700], size: 20),
+              child: Icon(
+                icon, 
+                color: isHighlight 
+                    ? theme.primaryColor 
+                    : theme.colorScheme.onSecondaryContainer, 
+                size: 20
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -207,6 +228,47 @@ class _MenuItem extends StatelessWidget {
             Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey[400]),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SwitchMenuItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final ThemeData theme;
+
+  const _SwitchMenuItem(this.theme, {required this.icon, required this.label, required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), // Adjusted vertical padding
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: theme.colorScheme.onSecondaryContainer, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: theme.primaryColor,
+          ),
+        ],
       ),
     );
   }
