@@ -23,8 +23,13 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
       } else {
         return 'Please check your email to confirm your account.';
       }
+    } on AuthException catch (e) {
+      if (e.message.toLowerCase().contains('invalid login credentials')) {
+         return 'Invalid email or password.';
+      }
+      return e.message;
     } catch (e) {
-      return e.toString(); // Return error message to display
+      return 'An unexpected error occurred.'; 
     }
   }
 
@@ -96,7 +101,7 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
     return AnimatedLogin(
         onLogin: _onLogin,
         onSignup: _onSignup,
-        onForgotPassword: _onForgotPassword,
+        // onForgotPassword: _onForgotPassword, // Disabled
         
         // Customize Logo
         logo: Container(
