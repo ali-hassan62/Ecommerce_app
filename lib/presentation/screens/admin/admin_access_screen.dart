@@ -30,6 +30,13 @@ class _AdminAccessScreenState extends State<AdminAccessScreen> {
           await Supabase.instance.client.auth.updateUser(
             UserAttributes(data: {'is_admin': true}),
           );
+
+          // ALSO update the public profiles table, in case RLS checks this table
+          await Supabase.instance.client.from('profiles').upsert({
+            'id': user.id,
+            'is_admin': true,
+            'full_name': user.userMetadata?['full_name'], // Preserve name if possible or just update admin
+          }, onConflict: 'id'); // Use upsert to be safe
           
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(

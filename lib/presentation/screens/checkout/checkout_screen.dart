@@ -7,6 +7,7 @@ import '../profile/add_payment_method_screen.dart'; // Assuming this exists or w
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/email_service.dart';
 import '../home/home_screen.dart';
+import '../main_screen.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -350,8 +351,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const HomeScreen()), 
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const MainScreen()), 
                     (route) => false
                   );
                 },

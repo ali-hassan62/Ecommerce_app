@@ -83,14 +83,16 @@ class ProfileScreen extends ConsumerWidget {
                         ],
                       ),
                     const SizedBox(height: 16),
-                    Text(
-                      fullName,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onBackground,
-                        letterSpacing: -0.5
-                      ),
+                  const SizedBox(height: 16),
+                  Text(
+                    user?.userMetadata?['full_name'] ?? 'Guest',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onBackground,
+                      letterSpacing: -0.5
                     ),
+                  ),
+                  if (user?.email != null) ...[
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -99,13 +101,14 @@ class ProfileScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        user?.email ?? 'alex.doe@example.com',
+                        user!.email!,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.primaryColor,
                           fontWeight: FontWeight.w500
                         ),
                       ),
                     ),
+                  ],
                     const SizedBox(height: 32),
   
                     // --- Menu Groups ---
@@ -144,21 +147,7 @@ class ProfileScreen extends ConsumerWidget {
                     ]),
                     const SizedBox(height: 24),
                     
-                    _buildMenuSection(context, theme, title: 'Content', items: [
-                      _MenuItem(
-                        theme, 
-                        icon: Icons.favorite_border_rounded, 
-                        label: 'Wishlist', 
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const WishlistScreen())),
-                      ),
-                      _MenuItem(
-                        theme, 
-                        icon: Icons.history_rounded, 
-                        label: 'Order History', 
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen())),
-                      ),
-                    ]),
-                    const SizedBox(height: 24),
+
   
                     // --- Logout Button ---
                     SizedBox(
