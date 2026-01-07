@@ -24,8 +24,9 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
         return 'Please check your email to confirm your account.';
       }
     } on AuthException catch (e) {
-      if (e.message.toLowerCase().contains('invalid login credentials')) {
-         return 'Invalid email or password.';
+      // Check for generic "Invalid login credentials" or specific 400 bad request logic if needed
+      if (e.message.toLowerCase().contains('invalid login credentials') || e.statusCode == '400') {
+         return 'Wrong credentials provided.';
       }
       return e.message;
     } catch (e) {
@@ -101,7 +102,7 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
     return AnimatedLogin(
         onLogin: _onLogin,
         onSignup: _onSignup,
-        // onForgotPassword: _onForgotPassword, // Disabled
+        onForgotPassword: _onForgotPassword,
         
         // Customize Logo
         logo: Container(
@@ -156,6 +157,15 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
         // Options
         signUpMode: SignUpModes.name, // Ask for Name + Email + Password
         socialLogins: const [], // Add social logins here if needed later
+        passwordValidator: ValidatorModel(customValidator: _passwordValidator), // Correctly wrapped
       );
+  }
+
+  String? _passwordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    // Return null to mark as valid, letting the server handle auth errors
+    return null; 
   }
 }

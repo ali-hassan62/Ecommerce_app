@@ -11,6 +11,8 @@ import 'wishlist_screen.dart';
 import 'order_history_screen.dart';
 import '../admin/admin_layout.dart';
 import '../admin/admin_access_screen.dart';
+import '../auth/auth_gate.dart';
+import '../auth/reset_password_screen.dart';
 
 import 'package:image_cropper/image_cropper.dart';
 
@@ -21,10 +23,46 @@ class ProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> with SingleTickerProviderStateMixin {
   String? _avatarUrl;
   bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
+  
+  // Animations
+  late AnimationController _controller;
+  late Animation<double> _headerFadeAnimation;
+  late Animation<Offset> _headerSlideAnimation;
+  late Animation<double> _listFadeAnimation;
+  late Animation<Offset> _listSlideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    // Header Animation (starts immediately)
+    _headerFadeAnimation = CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.6, curve: Curves.easeOut));
+    _headerSlideAnimation = Tween<Offset>(begin: const Offset(0, -0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.6, curve: Curves.easeOut)),
+    );
+
+    // List Animation (starts slightly later)
+    _listFadeAnimation = CurvedAnimation(parent: _controller, curve: const Interval(0.4, 1.0, curve: Curves.easeOut));
+    _listSlideAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.4, 1.0, curve: Curves.easeOut)),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage() async {
     try {
@@ -128,6 +166,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         // Prefer local state update, then metadata, then default
         final displayImage = _avatarUrl ?? user?.userMetadata?['avatar_url'];
 
+        // If user is null (logged out), show loader/empty to avoid showing Guest profile before redirect
+        if (user == null) {
+          return Scaffold(body: Center(child: CircularProgressIndicator(color: theme.primaryColor)));
+        }
+
         return Scaffold(
           backgroundColor: theme.scaffoldBackgroundColor,
           appBar: AppBar(
@@ -146,143 +189,177 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: theme.primaryColor.withOpacity(0.5), width: 3),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.primaryColor.withOpacity(0.2),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
+                    // Header Section (Animated)
+                    FadeTransition(
+                      opacity: _headerFadeAnimation,
+                      child: SlideTransition(
+                        position: _headerSlideAnimation,
+                        child: Column(
+                          children: [
+                            Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: theme.primaryColor.withOpacity(0.5), width: 3),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: theme.primaryColor.withOpacity(0.2),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 55,
+                                    backgroundColor: theme.colorScheme.surface,
+                                    child: _isLoading 
+                                      ? const CircularProgressIndicator()
+                                      : ClipOval(
+                                        child: displayImage != null 
+                                          ? Image.network(
+                                              displayImage,
+                                              width: 110,
+                                              height: 110,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) => 
+                                                Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
+                                            )
+                                          : Image.network(
+                                              'https://i.pravatar.cc/150?img=33',
+                                              width: 110,
+                                              height: 110,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) => 
+                                                Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
+                                            ),
+                                      ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: _pickImage,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: theme.primaryColor,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: theme.scaffoldBackgroundColor, width: 3),
+                                    ),
+                                    child: const Icon(Icons.edit_rounded, size: 14, color: Colors.white),
+                                  ),
                                 ),
                               ],
                             ),
-                            child: CircleAvatar(
-                              radius: 55,
-                              backgroundColor: theme.colorScheme.surface,
-                              child: _isLoading 
-                                ? const CircularProgressIndicator()
-                                : ClipOval(
-                                  child: displayImage != null 
-                                    ? Image.network(
-                                        displayImage,
-                                        width: 110,
-                                        height: 110,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => 
-                                          Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
-                                      )
-                                    : Image.network(
-                                        'https://i.pravatar.cc/150?img=33',
-                                        width: 110,
-                                        height: 110,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => 
-                                          Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
-                                      ),
-                                ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: theme.primaryColor,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: theme.scaffoldBackgroundColor, width: 3),
+                            const SizedBox(height: 16),
+                            Text(
+                              user?.userMetadata?['full_name'] ?? 'Guest',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onBackground,
+                                letterSpacing: -0.5
                               ),
-                              child: const Icon(Icons.edit_rounded, size: 14, color: Colors.white),
                             ),
-                          ),
-                        ],
-                      ),
-                    const SizedBox(height: 16),
-                  Text(
-                    user?.userMetadata?['full_name'] ?? 'Guest',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onBackground,
-                      letterSpacing: -0.5
-                    ),
-                  ),
-                  if (user?.email != null) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: theme.primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        user!.email!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.primaryColor,
-                          fontWeight: FontWeight.w500
+                            if (user?.email != null) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: theme.primaryColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  user!.email!,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.primaryColor,
+                                    fontWeight: FontWeight.w500
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),
-                  ],
   
-                    // --- Menu Groups ---
-                    _buildMenuSection(context, theme, title: 'Account', items: [
-                      _MenuItem(theme, icon: Icons.person_outline_rounded, label: 'Personal Details', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalDetailsScreen()))),
-                      _MenuItem(theme, icon: Icons.location_on_outlined, label: 'Addresses', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddressesScreen()))),
-                      _MenuItem(theme, icon: Icons.payment_outlined, label: 'Payment Methods', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentMethodsScreen()))),
-                      
-                      // Dark Mode Switch
-                      _SwitchMenuItem(
-                        theme,
-                        icon: Icons.dark_mode_outlined,
-                        label: 'Dark Mode',
-                        value: ref.watch(themeProvider) == ThemeMode.dark,
-                        onChanged: (val) {
-                          ref.read(themeProvider.notifier).toggleTheme(val);
-                        },
-                      ),
-                      
-                      // Admin Section
-                      if (user?.userMetadata?['is_admin'] == true)
-                        _MenuItem(
-                          theme,
-                          icon: Icons.admin_panel_settings_outlined,
-                          label: 'Admin Panel',
-                          isHighlight: true,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLayout())),
-                        )
-                      else
-                        _MenuItem(
-                          theme,
-                          icon: Icons.verified_user_outlined, 
-                          label: 'Become a Seller', 
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminAccessScreen())),
-                        ),
-                    ]),
-                    const SizedBox(height: 24),
-                    
-  
-                    // --- Logout Button ---
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextButton(
-                        onPressed: () async {
-                           await Supabase.instance.client.auth.signOut();
-                        },
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: theme.brightness == Brightness.light 
-                              ? Colors.red.withOpacity(0.1) 
-                              : Colors.red.withOpacity(0.2), // More visible in dark mode
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: const Text(
-                          'Log Out', 
-                          style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16)
+                    // --- Menu Groups (Animated) ---
+                    FadeTransition(
+                      opacity: _listFadeAnimation,
+                      child: SlideTransition(
+                        position: _listSlideAnimation,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 24), // Added spacing here inside animation
+                            _buildMenuSection(context, theme, title: 'Account', items: [
+                              _MenuItem(theme, icon: Icons.person_outline_rounded, label: 'Personal Details', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalDetailsScreen()))),
+                              _MenuItem(theme, icon: Icons.key_rounded, label: 'Change Password', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordScreen()))),
+                              _MenuItem(theme, icon: Icons.location_on_outlined, label: 'Addresses', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddressesScreen()))),
+                              _MenuItem(theme, icon: Icons.payment_outlined, label: 'Payment Methods', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentMethodsScreen()))),
+                              
+                              // Dark Mode Switch
+                              _SwitchMenuItem(
+                                theme,
+                                icon: Icons.dark_mode_outlined,
+                                label: 'Dark Mode',
+                                value: ref.watch(themeProvider) == ThemeMode.dark,
+                                onChanged: (val) {
+                                  ref.read(themeProvider.notifier).toggleTheme(val);
+                                },
+                              ),
+                              
+                              // Admin Section
+                              if (user?.userMetadata?['is_admin'] == true)
+                                _MenuItem(
+                                  theme,
+                                  icon: Icons.admin_panel_settings_outlined,
+                                  label: 'Admin Panel',
+                                  isHighlight: true,
+                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLayout())),
+                                )
+                              else
+                                _MenuItem(
+                                  theme,
+                                  icon: Icons.verified_user_outlined, 
+                                  label: 'Become a Seller', 
+                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminAccessScreen())),
+                                ),
+                            ]),
+                            const SizedBox(height: 24),
+                            
+          
+                            // --- Logout Button ---
+                            SizedBox(
+                              width: double.infinity,
+                              child: TextButton(
+                                onPressed: () async {
+                                   try {
+                                     await Supabase.instance.client.auth.signOut();
+                                   } catch (e) {
+                                     // Ignore errors during sign out
+                                   }
+                                   if (mounted) {
+                                     // Navigate to root (AuthGate) which handles the login screen
+                                     Navigator.of(context).pushAndRemoveUntil(
+                                       MaterialPageRoute(builder: (context) => const AuthGate()), 
+                                       (route) => false,
+                                     );
+                                   }
+                                },
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: theme.brightness == Brightness.light 
+                                      ? Colors.red.withOpacity(0.1) 
+                                      : Colors.red.withOpacity(0.2), // More visible in dark mode
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                                child: const Text(
+                                  'Log Out', 
+                                  style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16)
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +26,7 @@ class _AdminAddEditProductScreenState extends ConsumerState<AdminAddEditProductS
   // We keep this to store the final URL (either from existing product or new upload)
   String? _finalImageUrl;
   
-  File? _pickedImageFile;
+  XFile? _pickedFile; // Changed from File? to XFile? for web support
   final ImagePicker _picker = ImagePicker();
   bool _isSaving = false;
 
@@ -51,7 +52,7 @@ class _AdminAddEditProductScreenState extends ConsumerState<AdminAddEditProductS
       final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
-          _pickedImageFile = File(pickedFile.path);
+          _pickedFile = pickedFile;
         });
       }
     } catch (e) {
@@ -62,15 +63,25 @@ class _AdminAddEditProductScreenState extends ConsumerState<AdminAddEditProductS
     }
   }
 
-  Future<String?> _uploadImage(File imageFile) async {
+  Future<String?> _uploadImage(XFile imageFile) async {
     try {
-      final fileExt = imageFile.path.split('.').last;
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      final fileExt = imageFile.path.split('.').last; // This might be full path on mobile, irrelevant on local file logic but ok
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt'; // simplistic extension handling
       final filePath = fileName; // storing in root of 'products' bucket
 
-      await Supabase.instance.client.storage
-          .from('products')
-          .upload(filePath, imageFile, fileOptions: const FileOptions(cacheControl: '3600', upsert: false));
+      if (kIsWeb) {
+        // Web: Upload binary data
+        final bytes = await imageFile.readAsBytes();
+        await Supabase.instance.client.storage
+            .from('products')
+            .uploadBinary(filePath, bytes, fileOptions: const FileOptions(cacheControl: '3600', upsert: false));
+      } else {
+        // Mobile/Desktop: Upload file
+        final file = File(imageFile.path);
+        await Supabase.instance.client.storage
+            .from('products')
+            .upload(filePath, file, fileOptions: const FileOptions(cacheControl: '3600', upsert: false));
+      }
 
       final imageUrl = Supabase.instance.client.storage
           .from('products')
@@ -85,7 +96,7 @@ class _AdminAddEditProductScreenState extends ConsumerState<AdminAddEditProductS
 
   Future<void> _save() async {
     if (_formKey.currentState!.validate()) {
-      if (_pickedImageFile == null && (_finalImageUrl == null || _finalImageUrl!.isEmpty)) {
+      if (_pickedFile == null && (_finalImageUrl == null || _finalImageUrl!.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please upload an image for the product.')),
         );
@@ -96,8 +107,8 @@ class _AdminAddEditProductScreenState extends ConsumerState<AdminAddEditProductS
 
       try {
         // Upload image if a new one is picked
-        if (_pickedImageFile != null) {
-          final uploadedUrl = await _uploadImage(_pickedImageFile!);
+        if (_pickedFile != null) {
+          final uploadedUrl = await _uploadImage(_pickedFile!);
           if (uploadedUrl != null) {
             _finalImageUrl = uploadedUrl;
           }
@@ -174,8 +185,10 @@ class _AdminAddEditProductScreenState extends ConsumerState<AdminAddEditProductS
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: _pickedImageFile != null
-                        ? Image.file(_pickedImageFile!, fit: BoxFit.cover)
+                    child: _pickedFile != null
+                        ? (kIsWeb 
+                            ? Image.network(_pickedFile!.path, fit: BoxFit.cover) 
+                            : Image.file(File(_pickedFile!.path), fit: BoxFit.cover)) // File is from dart:io
                         : (_finalImageUrl != null && _finalImageUrl!.isNotEmpty)
                             ? Image.network(
                                 _finalImageUrl!, 

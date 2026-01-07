@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main_screen.dart';
 import 'animated_login_screen.dart';
+import 'reset_password_screen.dart';
 
 class AuthGate extends ConsumerStatefulWidget {
   const AuthGate({super.key});
@@ -12,6 +13,24 @@ class AuthGate extends ConsumerStatefulWidget {
 }
 
 class _AuthGateState extends ConsumerState<AuthGate> {
+  @override
+  void initState() {
+    super.initState();
+    _setupAuthListener();
+  }
+
+  void _setupAuthListener() {
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.passwordRecovery) {
+        if (mounted) {
+           Navigator.of(context).push(
+             MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+           );
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<AuthState>(
