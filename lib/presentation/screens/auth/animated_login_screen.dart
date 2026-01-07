@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:animated_login/animated_login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart'; // For kIsWeb
+import 'verify_otp_screen.dart';
 
 class AnimatedLoginScreen extends StatefulWidget {
   const AnimatedLoginScreen({super.key});
@@ -63,14 +64,35 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
 
   // Forgot Password Logic
   Future<String?> _onForgotPassword(String email) async {
+    print("DEBUG: _onForgotPassword called with $email");
     try {
-      await Supabase.instance.client.auth.resetPasswordForEmail(
-        email,
-        redirectTo: kIsWeb ? null : 'io.supabase.flutterlab://login-callback',
+      print("DEBUG: Sending OTP for password recovery (via signInWithOtp)...");
+      // Use signInWithOtp to send a code. This acts as a "login" which allows password reset.
+      // We set shouldCreateUser: false because this is a recovery flow for EXISTING users.
+      await Supabase.instance.client.auth.signInWithOtp(
+        email: email,
+        shouldCreateUser: false, 
+        emailRedirectTo: kIsWeb ? null : 'io.supabase.flutterlab://login-callback',
       );
+      print("DEBUG: OTP sent.");
+      
+      // Navigate to OTP verification screen
+      if (mounted) {
+         print("DEBUG: Navigating to VerifyOtpScreen");
+         Navigator.of(context).push(
+           MaterialPageRoute(
+             builder: (_) => VerifyOtpScreen(email: email),
+           ),
+         );
+      }
+      
       return null; // Success
+    } on AuthException catch (e) {
+      print("DEBUG: AuthException in _onForgotPassword: ${e.message} (Code: ${e.statusCode})");
+      return e.message; // Return friendly message
     } catch (e) {
-      return e.toString();
+      print("DEBUG: Error in _onForgotPassword: $e");
+      return "An error occurred: $e";
     }
   }
 
@@ -157,7 +179,14 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
         // Options
         signUpMode: SignUpModes.name, // Ask for Name + Email + Password
         socialLogins: const [], // Add social logins here if needed later
-        passwordValidator: ValidatorModel(customValidator: _passwordValidator), // Correctly wrapped
+        passwordValidator: ValidatorModel(
+          customValidator: _passwordValidator,
+          length: 0,
+          checkUpperCase: false,
+          checkLowerCase: false,
+          checkNumber: false,
+          checkSpace: false,
+        ),
       );
   }
 
