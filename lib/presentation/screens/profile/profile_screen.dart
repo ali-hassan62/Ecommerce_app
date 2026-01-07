@@ -223,7 +223,7 @@ class _MenuItem extends StatelessWidget {
                 label,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: isHighlight ? theme.primaryColor : theme.textTheme.bodyLarge?.color,
+                  color: isHighlight ? theme.colorScheme.primary : theme.colorScheme.onSurface,
                 ),
               ),
             ),
@@ -262,7 +262,10 @@ class _SwitchMenuItem extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ),
           Switch(
