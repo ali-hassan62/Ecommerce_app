@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../providers/theme_provider.dart';
 import 'personal_details_screen.dart';
 import 'addresses_screen.dart';
@@ -10,17 +12,121 @@ import 'order_history_screen.dart';
 import '../admin/admin_layout.dart';
 import '../admin/admin_access_screen.dart';
 
-class ProfileScreen extends ConsumerWidget {
+import 'package:image_cropper/image_cropper.dart';
+
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  String? _avatarUrl;
+  bool _isLoading = false;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        _cropImage(pickedFile.path);
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  Future<void> _cropImage(String sourcePath) async {
+    try {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: sourcePath,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: Theme.of(context).primaryColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            title: 'Crop Image',
+          ),
+        ],
+      );
+      
+      if (croppedFile != null) {
+        await _uploadImage(File(croppedFile.path));
+      }
+    } catch (e) {
+       debugPrint('Error cropping image: $e');
+    }
+  }
+
+  Future<void> _uploadImage(File imageFile) async {
+    setState(() => _isLoading = true);
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return;
+
+      final fileExt = imageFile.path.split('.').last;
+      final fileName = '${DateTime.now().toIso8601String()}.$fileExt';
+      final filePath = '${user.id}/$fileName';
+
+      // Upload to Supabase Storage
+      await Supabase.instance.client.storage
+          .from('avatars')
+          .upload(filePath, imageFile, fileOptions: const FileOptions(cacheControl: '3600', upsert: false));
+
+      // Get Public URL
+      final imageUrl = Supabase.instance.client.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+
+      // Update User Metadata
+      await Supabase.instance.client.auth.updateUser(
+        UserAttributes(data: {'avatar_url': imageUrl}),
+      );
+
+      // Update Public Profile Table
+      await Supabase.instance.client.from('profiles').upsert({
+        'id': user.id,
+        'avatar_url': imageUrl,
+        'updated_at': DateTime.now().toIso8601String(),
+      }, onConflict: 'id');
+
+      setState(() {
+        _avatarUrl = imageUrl;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile picture updated!')),
+        );
+      }
+
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: $e')),
+        );
+      }
+    } finally {
+       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
         final user = Supabase.instance.client.auth.currentUser;
-        final fullName = user?.userMetadata?['full_name'] ?? 'Alex Doe';
         final theme = Theme.of(context);
+        
+        // Prefer local state update, then metadata, then default
+        final displayImage = _avatarUrl ?? user?.userMetadata?['avatar_url'];
 
         return Scaffold(
           backgroundColor: theme.scaffoldBackgroundColor,
@@ -59,31 +165,44 @@ class ProfileScreen extends ConsumerWidget {
                             child: CircleAvatar(
                               radius: 55,
                               backgroundColor: theme.colorScheme.surface,
-                              child: ClipOval(
-                                child: Image.network(
-                                  'https://i.pravatar.cc/150?img=33',
-                                  width: 110,
-                                  height: 110,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => 
-                                    Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
+                              child: _isLoading 
+                                ? const CircularProgressIndicator()
+                                : ClipOval(
+                                  child: displayImage != null 
+                                    ? Image.network(
+                                        displayImage,
+                                        width: 110,
+                                        height: 110,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => 
+                                          Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
+                                      )
+                                    : Image.network(
+                                        'https://i.pravatar.cc/150?img=33',
+                                        width: 110,
+                                        height: 110,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => 
+                                          Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
+                                      ),
                                 ),
-                              ),
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: theme.primaryColor,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: theme.scaffoldBackgroundColor, width: 3),
+                          GestureDetector(
+                            onTap: _pickImage,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: theme.primaryColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: theme.scaffoldBackgroundColor, width: 3),
+                              ),
+                              child: const Icon(Icons.edit_rounded, size: 14, color: Colors.white),
                             ),
-                            child: const Icon(Icons.edit_rounded, size: 14, color: Colors.white),
                           ),
                         ],
                       ),
                     const SizedBox(height: 16),
-                  const SizedBox(height: 16),
                   Text(
                     user?.userMetadata?['full_name'] ?? 'Guest',
                     style: theme.textTheme.headlineMedium?.copyWith(
@@ -109,7 +228,6 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
-                    const SizedBox(height: 32),
   
                     // --- Menu Groups ---
                     _buildMenuSection(context, theme, title: 'Account', items: [
@@ -147,7 +265,6 @@ class ProfileScreen extends ConsumerWidget {
                     ]),
                     const SizedBox(height: 24),
                     
-
   
                     // --- Logout Button ---
                     SizedBox(
