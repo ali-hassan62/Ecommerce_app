@@ -3,9 +3,11 @@ import 'package:http/http.dart' as http;
 import '../../data/models/product_model.dart';
 import 'package:flutter/foundation.dart';
 
+import '../constants.dart';
+
 class EmailService {
-  // TODO: Replace this with your actual Resend API Key
-  static const String _apiKey = 're_123456789'; 
+  // Configured in AppConstants for runtime/environment changes
+  static const String _apiKey = AppConstants.resendApiKey; 
   
   static const String _apiUrl = 'https://api.resend.com/emails';
 

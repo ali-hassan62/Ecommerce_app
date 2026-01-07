@@ -4,4 +4,8 @@ class AppConstants {
   static const String cartBox = 'cart_box';
   static const String cartQuantitiesBox = 'cart_quantities_box';
   static const String settingsBox = 'settings_box';
+  
+  // Email Service Configuration
+  // Runtime Change: Update this key to enable real email sending
+  static const String resendApiKey = 're_123456789';
 }
