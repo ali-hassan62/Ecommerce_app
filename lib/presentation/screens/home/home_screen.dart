@@ -59,16 +59,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             children: [
                               Text(
                                 'Good Morning,', 
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: Colors.grey[600],
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: theme.colorScheme.onBackground.withOpacity(0.6),
+                                  fontWeight: FontWeight.w500,
                                 )
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 Supabase.instance.client.auth.currentUser?.userMetadata?['full_name'] ?? 'Guest', 
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.bold, 
-                                  color: theme.textTheme.titleLarge?.color
+                                style: theme.textTheme.headlineSmall?.copyWith( // Increased size
+                                  fontWeight: FontWeight.w800, 
+                                  color: theme.colorScheme.onBackground,
+                                  letterSpacing: -0.5,
                                 )
                               ),
                             ],
@@ -99,26 +101,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: theme.cardTheme.color, // Adapt to dark mode
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05), 
-                              blurRadius: 20, 
-                              offset: const Offset(0, 5)
+                              color: theme.shadowColor.withOpacity(0.08), 
+                              blurRadius: 24, 
+                              offset: const Offset(0, 8)
                             ),
                           ],
                         ),
                         child: TextField(
                           controller: _searchController,
                           onChanged: (val) => ref.read(searchQueryProvider.notifier).state = val,
+                          style: theme.textTheme.bodyLarge,
                           decoration: InputDecoration(
                             hintText: 'Search for clothes, shoes...',
-                            hintStyle: TextStyle(color: Colors.grey[400]),
-                            prefixIcon: Icon(Icons.search, color: theme.primaryColor.withOpacity(0.6)),
+                            hintStyle: theme.textTheme.bodyLarge?.copyWith(
+                                color: theme.colorScheme.onSurface.withOpacity(0.4)
+                            ),
+                            prefixIcon: Icon(Icons.search_rounded, color: theme.primaryColor),
                             suffixIcon: searchQuery.isNotEmpty 
                               ? IconButton(
-                                  icon: const Icon(Icons.clear),
+                                  icon: const Icon(Icons.clear_rounded),
                                   onPressed: () {
                                     _searchController.clear();
                                     ref.read(searchQueryProvider.notifier).state = '';
@@ -131,7 +136,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     color: theme.primaryColor.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Icon(Icons.tune, color: theme.primaryColor, size: 20),
+                                  child: Icon(Icons.tune_rounded, color: theme.primaryColor, size: 20),
                                 ),
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
@@ -284,13 +289,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildCategoryItem(String title, IconData icon, Color color) {
+    final theme = Theme.of(context);
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final isSelected = selectedCategory == title;
     
     return CategoryTile(
       title: title, 
       icon: icon, 
-      color: color, 
+      color: theme.brightness == Brightness.dark && isSelected ? theme.primaryColor : color, // Use primary for active in dark mode if specific color is too dark, otherwise stick to category color
       bgColor: color.withOpacity(0.1),
       isSelected: isSelected,
       onTap: () => ref.read(selectedCategoryProvider.notifier).state = title,
@@ -299,7 +305,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildBanner(String title, String subtitle, Color color, String imageUrl) {
     return Container(
-      margin: const EdgeInsets.only(right: 16), // Spacing for pageview
+      margin: const EdgeInsets.only(right: 16), 
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         image: DecorationImage(
@@ -308,21 +314,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: color.withOpacity(0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Stack(
         children: [
+          // Gradient Overlay for Text Readability
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
               gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: [color.withOpacity(0.8), Colors.transparent],
+                colors: [
+                  color.withOpacity(0.9),
+                  color.withOpacity(0.4),
+                  Colors.transparent
+                ],
+                stops: const [0.0, 0.6, 1.0],
               ),
             ),
           ),
@@ -333,27 +345,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white.withOpacity(0.5)),
+                    border: Border.all(color: Colors.white.withOpacity(0.3)),
                   ),
-                  child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    title.toUpperCase(), 
+                    style: const TextStyle(
+                      color: Colors.white, 
+                      fontSize: 11, 
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0
+                    )
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(subtitle, 
-                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, height: 1.1),
+                  style: const TextStyle(
+                    color: Colors.white, 
+                    fontSize: 32, 
+                    fontWeight: FontWeight.w900, 
+                    height: 1.1,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black26, 
+                        offset: Offset(0, 2), 
+                        blurRadius: 4
+                      )
+                    ]
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: color,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 4,
+                    shadowColor: Colors.black26,
                   ),
                   child: const Text('Shop Now'),
                 ),

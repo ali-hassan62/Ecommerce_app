@@ -40,36 +40,71 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                     Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: theme.primaryColor, width: 2),
-                      ),
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: theme.colorScheme.surface,
-                        child: ClipOval(
-                          child: Image.network(
-                            'https://i.pravatar.cc/150?img=33',
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => 
-                              Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: theme.primaryColor.withOpacity(0.5), width: 3),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.primaryColor.withOpacity(0.2),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              radius: 55,
+                              backgroundColor: theme.colorScheme.surface,
+                              child: ClipOval(
+                                child: Image.network(
+                                  'https://i.pravatar.cc/150?img=33',
+                                  width: 110,
+                                  height: 110,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => 
+                                    Icon(Icons.person, size: 50, color: theme.primaryColor.withOpacity(0.5)),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: theme.primaryColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: theme.scaffoldBackgroundColor, width: 3),
+                            ),
+                            child: const Icon(Icons.edit_rounded, size: 14, color: Colors.white),
+                          ),
+                        ],
                       ),
-                    ),
                     const SizedBox(height: 16),
                     Text(
                       fullName,
-                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onBackground,
+                        letterSpacing: -0.5
+                      ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user?.email ?? 'alex.doe@example.com',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7)),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        user?.email ?? 'alex.doe@example.com',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.primaryColor,
+                          fontWeight: FontWeight.w500
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 32),
   
@@ -168,11 +203,12 @@ class ProfileScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
             boxShadow: [
               BoxShadow(
-                color: theme.shadowColor.withOpacity(0.05), 
-                blurRadius: 15, 
-                offset: const Offset(0, 5)
+                color: theme.shadowColor.withOpacity(0.08), 
+                blurRadius: 24, 
+                offset: const Offset(0, 8)
               ),
             ],
           ),

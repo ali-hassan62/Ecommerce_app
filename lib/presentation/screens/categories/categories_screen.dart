@@ -45,9 +45,16 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Shop by Category', 
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onBackground.withOpacity(0.6),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text('Explore Collection', 
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.titleLarge?.color,
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.onBackground,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -62,8 +69,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                       child: CategoryTile(
                         title: 'All Products', 
                         icon: Icons.grid_view_rounded, 
-                        color: theme.colorScheme.onSurface,
-                        bgColor: theme.colorScheme.secondaryContainer,
+                        color: theme.colorScheme.primary, // Make this pop
+                        bgColor: theme.colorScheme.primary.withOpacity(0.1),
                         isLarge: true,
                         onTap: () {
                            Navigator.push(

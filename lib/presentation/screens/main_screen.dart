@@ -44,12 +44,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardTheme.color, // Adapt to theme
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
+                color: Theme.of(context).shadowColor.withOpacity(0.1),
+                blurRadius: 30,
                 offset: const Offset(0, 10),
               ),
             ],
@@ -92,7 +92,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           children: [
             Icon(
               isSelected ? selectedIcon : unselectedIcon,
-              color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
+              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).iconTheme.color?.withOpacity(0.5) ?? Colors.grey,
               size: 24,
             ),
             if (isSelected) ...[
