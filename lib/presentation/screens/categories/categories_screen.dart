@@ -5,11 +5,24 @@ import '../../../logic/providers/product_provider.dart';
 import '../../widgets/category_tile.dart';
 import 'category_products_screen.dart';
 
-class CategoriesScreen extends ConsumerWidget {
+class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CategoriesScreen> createState() => _CategoriesScreenState();
+}
+
+class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -23,8 +36,10 @@ class CategoriesScreen extends ConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Scrollbar(
+          controller: _scrollController,
           thumbVisibility: true,
           child: SingleChildScrollView(
+            controller: _scrollController,
             physics: const BouncingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
