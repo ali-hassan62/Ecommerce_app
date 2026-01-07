@@ -45,7 +45,7 @@ class WishlistScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: theme.shadowColor.withOpacity(0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -67,7 +67,12 @@ class WishlistScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(
+                            product.title, 
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 4),
                           Text('\$${product.price}', style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold)),
                         ],
@@ -97,11 +102,11 @@ class WishlistScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.favorite_border_rounded, size: 64, color: Colors.grey[300]),
+          Icon(Icons.favorite_border_rounded, size: 64, color: theme.disabledColor),
           const SizedBox(height: 16),
           Text(
             'Your wishlist is empty',
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            style: TextStyle(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5), fontSize: 16),
           ),
         ],
       ),

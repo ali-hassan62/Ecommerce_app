@@ -12,6 +12,7 @@ class AppTheme {
   // Text Colors
   static const Color textPrimary = Color(0xFF2D3436);
   static const Color textSecondary = Color(0xFF636E72);
+  static const Color hintColor = Color(0xFFB0B0B0);
 
   // Dark Mode Colors
   static const Color darkBackgroundColor = Color(0xFF121212);
@@ -142,7 +143,7 @@ class AppTheme {
           borderSide: const BorderSide(color: primaryColor),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        hintStyle: const TextStyle(color: darkTextSecondary),
+        hintStyle: const TextStyle(color: hintColor),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

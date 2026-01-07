@@ -69,7 +69,7 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       user?.email ?? 'alex.doe@example.com',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7)),
                     ),
                     const SizedBox(height: 32),
   
@@ -134,7 +134,9 @@ class ProfileScreen extends ConsumerWidget {
                         },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.red.withOpacity(0.1),
+                          backgroundColor: theme.brightness == Brightness.light 
+                              ? Colors.red.withOpacity(0.1) 
+                              : Colors.red.withOpacity(0.2), // More visible in dark mode
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
                         child: const Text(
@@ -160,7 +162,7 @@ class ProfileScreen extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.grey[600])),
+          child: Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7))),
         ),
         Container(
           decoration: BoxDecoration(
@@ -225,7 +227,7 @@ class _MenuItem extends StatelessWidget {
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey[400]),
+            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: theme.iconTheme.color?.withOpacity(0.3) ?? Colors.grey),
           ],
         ),
       ),

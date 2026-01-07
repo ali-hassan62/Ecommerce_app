@@ -108,7 +108,7 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
         loginDesktopTheme: LoginViewTheme(
           // Use app colors
           backgroundColor: mainTheme.colorScheme.background,
-          formFieldBackgroundColor: mainTheme.inputDecorationTheme.fillColor ?? Colors.white,
+          formFieldBackgroundColor: Colors.white,
           actionButtonStyle: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(mainTheme.colorScheme.primary),
             foregroundColor: MaterialStateProperty.all(mainTheme.colorScheme.onPrimary),
@@ -123,7 +123,7 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
         ),
         loginMobileTheme: LoginViewTheme(
           backgroundColor: mainTheme.colorScheme.background,
-          formFieldBackgroundColor: mainTheme.inputDecorationTheme.fillColor ?? Colors.white,
+          formFieldBackgroundColor: Colors.white,
           actionButtonStyle: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(mainTheme.colorScheme.primary),
             foregroundColor: MaterialStateProperty.all(mainTheme.colorScheme.onPrimary),
