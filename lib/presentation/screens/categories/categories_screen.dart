@@ -47,8 +47,8 @@ class CategoriesScreen extends ConsumerWidget {
                       child: CategoryTile(
                         title: 'All Products', 
                         icon: Icons.grid_view_rounded, 
-                        color: Colors.black87,
-                        bgColor: const Color(0xFFF5F5F5),
+                        color: theme.colorScheme.onSurface,
+                        bgColor: theme.colorScheme.secondaryContainer,
                         isLarge: true,
                         onTap: () {
                            Navigator.push(

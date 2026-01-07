@@ -62,12 +62,8 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: const Text('Personal Details', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        title: const Text('Personal Details', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -79,19 +75,18 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
               _buildTextField('Email Address', _emailController, Icons.email_outlined, readOnly: true),
               const SizedBox(height: 16),
               _buildTextField('Phone Number', _phoneController, Icons.phone_outlined),
-              const SizedBox(height: 24), // Replaced Spacer with fixed spacing as Spacer doesn't work well in ScrollView
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _saveUserData,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _isLoading 
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 16)),
+                    : const Text('Save Changes', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],
@@ -102,26 +97,24 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   }
 
   Widget _buildTextField(String label, TextEditingController controller, IconData icon, {bool readOnly = false}) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500)),
+        Text(
+          label, 
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+          )
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           readOnly: readOnly,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: Colors.grey),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
+            prefixIcon: Icon(icon, color: theme.iconTheme.color?.withOpacity(0.5) ?? Colors.grey),
+            // filled and fillColor are handled by Theme now
           ),
         ),
       ],

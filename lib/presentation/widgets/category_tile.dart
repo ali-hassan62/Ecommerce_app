@@ -22,12 +22,13 @@ class CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.white,
+          color: isSelected ? color.withOpacity(0.1) : (theme.cardTheme.color ?? theme.colorScheme.surface),
           borderRadius: BorderRadius.circular(24),
           border: isSelected ? Border.all(color: color, width: 2) : Border.all(color: Colors.transparent),
           boxShadow: [
@@ -50,7 +51,7 @@ class CategoryTile extends StatelessWidget {
               child: Icon(
                 icon, 
                 size: isLarge ? 32 : 24, 
-                color: isSelected ? Colors.white : color
+                color: isSelected ? theme.colorScheme.surface : color
               ),
             ),
             SizedBox(height: isLarge ? 12 : 8),
@@ -60,7 +61,7 @@ class CategoryTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? color : Colors.black87,
+                color: isSelected ? color : (theme.textTheme.bodyMedium?.color ?? Colors.black87),
                 fontSize: isLarge ? 16 : 13,
               )
             ),

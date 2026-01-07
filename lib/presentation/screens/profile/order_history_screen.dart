@@ -64,7 +64,7 @@ class OrderHistoryScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(order['date']!, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                    Text(order['date']!, style: TextStyle(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7), fontSize: 14)),
                     Text(order['total']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ],
                 ),
@@ -74,7 +74,7 @@ class OrderHistoryScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(order['items']!, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                    Text(order['items']!, style: TextStyle(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7), fontSize: 14)),
                     TextButton(
                       onPressed: () {},
                       child: const Text('View Details'),

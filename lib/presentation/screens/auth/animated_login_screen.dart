@@ -91,48 +91,66 @@ class _AnimatedLoginScreenState extends State<AnimatedLoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
+    final mainTheme = Theme.of(context);
+    
     return AnimatedLogin(
-      onLogin: _onLogin,
-      onSignup: _onSignup,
-      onForgotPassword: _onForgotPassword,
-      
-      // Customize Logo
-      logo: const Icon(Icons.shopping_bag_outlined, size: 100, color: Colors.white), // Or Image.asset
-      
-      // Customize Theme
-      loginDesktopTheme: LoginViewTheme(
-        // Use app colors
-        backgroundColor: theme.primaryColor.withOpacity(0.8), // Background
-        formFieldBackgroundColor: Colors.white,
-        actionButtonStyle: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(theme.primaryColor),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
+        onLogin: _onLogin,
+        onSignup: _onSignup,
+        onForgotPassword: _onForgotPassword,
+        
+        // Customize Logo
+        logo: Container(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Icon(Icons.shopping_bag_outlined, size: 80, color: mainTheme.colorScheme.primary),
         ),
-      ),
-      loginMobileTheme: LoginViewTheme(
-        backgroundColor: theme.primaryColor.withOpacity(0.8), 
-        formFieldBackgroundColor: Colors.white,
-        actionButtonStyle: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(theme.primaryColor),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
+        
+        // Customize Theme
+        loginDesktopTheme: LoginViewTheme(
+          // Use app colors
+          backgroundColor: mainTheme.colorScheme.background,
+          formFieldBackgroundColor: mainTheme.inputDecorationTheme.fillColor ?? Colors.white,
+          actionButtonStyle: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(mainTheme.colorScheme.primary),
+            foregroundColor: MaterialStateProperty.all(mainTheme.colorScheme.onPrimary),
+          ),
+          logoPadding: const EdgeInsets.only(bottom: 20),
+          formFieldElevation: 0, 
+          // Custom text styles that ARE supported
+          changeActionTextStyle: TextStyle(color: mainTheme.colorScheme.primary, fontWeight: FontWeight.bold),
+          forgotPasswordStyle: TextStyle(color: mainTheme.colorScheme.secondary),
+          welcomeTitleStyle: TextStyle(color: mainTheme.textTheme.displaySmall?.color ?? mainTheme.colorScheme.onBackground),
+          welcomeDescriptionStyle: TextStyle(color: mainTheme.textTheme.bodyLarge?.color ?? mainTheme.colorScheme.onBackground.withOpacity(0.7)),
         ),
-      ),
-      
-      // Customize Texts
-      loginTexts: LoginTexts(
-        welcomeBack: 'Welcome Back!',
-        welcome: 'Welcome!',
-        welcomeBackDescription: 'Enter your details to sign in',
-        welcomeDescription: 'Sign up to get started',
-        signUp: 'Sign Up',
-        login: 'Log In',
-        notHaveAnAccount: 'Don\'t have an account?',
-        alreadyHaveAnAccount: 'Already have an account?',
-      ),
-      
-      // Options
-      signUpMode: SignUpModes.name, // Ask for Name + Email + Password
-      socialLogins: const [], // Add social logins here if needed later
-    );
+        loginMobileTheme: LoginViewTheme(
+          backgroundColor: mainTheme.colorScheme.background,
+          formFieldBackgroundColor: mainTheme.inputDecorationTheme.fillColor ?? Colors.white,
+          actionButtonStyle: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(mainTheme.colorScheme.primary),
+            foregroundColor: MaterialStateProperty.all(mainTheme.colorScheme.onPrimary),
+          ),
+          logoPadding: const EdgeInsets.only(bottom: 20),
+          formFieldElevation: 0,
+          changeActionTextStyle: TextStyle(color: mainTheme.colorScheme.primary, fontWeight: FontWeight.bold),
+          forgotPasswordStyle: TextStyle(color: mainTheme.colorScheme.secondary),
+          welcomeTitleStyle: TextStyle(color: mainTheme.textTheme.displaySmall?.color ?? mainTheme.colorScheme.onBackground),
+          welcomeDescriptionStyle: TextStyle(color: mainTheme.textTheme.bodyLarge?.color ?? mainTheme.colorScheme.onBackground.withOpacity(0.7)),
+        ),
+        
+        // Customize Texts
+        loginTexts: LoginTexts(
+          welcomeBack: 'Welcome Back!',
+          welcome: 'Welcome!',
+          welcomeBackDescription: 'Enter your details to sign in',
+          welcomeDescription: 'Sign up to get started',
+          signUp: 'Sign Up',
+          login: 'Log In',
+          notHaveAnAccount: 'Don\'t have an account?',
+          alreadyHaveAnAccount: 'Already have an account?',
+        ),
+        
+        // Options
+        signUpMode: SignUpModes.name, // Ask for Name + Email + Password
+        socialLogins: const [], // Add social logins here if needed later
+      );
   }
 }
