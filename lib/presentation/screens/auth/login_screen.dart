@@ -36,6 +36,14 @@ class _AuthScreenState extends State<AuthScreen> {
           emailRedirectTo: kIsWeb ? null : 'io.supabase.flutterlab://login-callback',
           data: {'full_name': name}, // Store name in metadata
         );
+        
+        // Switch to login mode after successful signup
+        if (mounted) {
+           setState(() {
+             _isLogin = true;
+             _passwordController.clear(); // Clear password for security/UX
+           });
+        }
       }
 
       final session = response.session;
